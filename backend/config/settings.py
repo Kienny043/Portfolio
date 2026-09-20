@@ -1,6 +1,6 @@
 """
-Django settings for the portfolio: a single service that serves both the DRF API
-(/api/...) and the built React app (frontend/dist), so everything is same-origin.
+Django settings for the portfolio API. The React frontend is a separate static
+site on its own origin, so CORS is enabled for the origins in CORS_ALLOWED_ORIGINS.
 
 All secrets/config come from environment variables (see .env.example and the
 "Deployment" section of CLAUDE.md). The app maps onto pre-existing Aiven tables
@@ -16,7 +16,6 @@ from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-FRONTEND_DIST = BASE_DIR.parent / "frontend" / "dist"  # output of `npm run build`
 
 load_dotenv(BASE_DIR / ".env")
 
@@ -43,23 +42,22 @@ if os.environ.get("RENDER_EXTERNAL_HOSTNAME"):
 INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
+    "corsheaders",
     "core",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
 ]
 
-if DEBUG:
-    # CORS is only a local-dev convenience (e.g. hitting :8000 directly from :5173).
-    # In production the frontend and API share an origin, so it's not installed at all.
-    INSTALLED_APPS.insert(2, "corsheaders")
-    MIDDLEWARE.insert(2, "corsheaders.middleware.CorsMiddleware")
-    CORS_ALLOWED_ORIGINS = env_list(
-        "CORS_ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173"
-    )
+# Origins of the deployed frontend, WITH scheme and no trailing slash, comma-separated,
+# e.g. "https://portfolio-web.onrender.com". The localhost default only applies in local
+# dev (DEBUG); in production nothing is allowed until CORS_ALLOWED_ORIGINS is set.
+CORS_ALLOWED_ORIGINS = env_list(
+    "CORS_ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173" if DEBUG else ""
+)
 
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
@@ -80,27 +78,7 @@ TIME_ZONE = "Asia/Manila"
 USE_I18N = False
 USE_TZ = True
 
-# Static files: `collectstatic` copies the built React app (frontend/dist) into
-# STATIC_ROOT, gzip/brotli-compresses it, and WhiteNoise serves it. The built app
-# expects to live at the site root (/assets/..., /images/..., /favicon.svg), so
-# WhiteNoise is told to serve STATIC_ROOT at "/" rather than under STATIC_URL.
 STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_DIRS = [FRONTEND_DIST] if FRONTEND_DIST.is_dir() else []
-STORAGES = {
-    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
-}
-WHITENOISE_STATIC_PREFIX = "/"
-WHITENOISE_INDEX_FILE = True  # serve index.html for "/"
-
-
-def _immutable_file_test(path, url):
-    # Vite content-hashes everything under /assets/, so it can be cached forever.
-    return url.startswith("/assets/")
-
-
-WHITENOISE_IMMUTABLE_FILE_TEST = _immutable_file_test
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

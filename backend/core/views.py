@@ -1,9 +1,6 @@
-from django.conf import settings
 from django.db.models import Sum
 from django.db.models.functions import Coalesce
-from django.http import Http404, HttpResponse
 from django.utils import timezone
-from django.views.decorators.http import require_safe
 from rest_framework import status, viewsets
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import CreateAPIView
@@ -146,17 +143,3 @@ class AnalyticsCountView(APIView):
     def get(self, request):
         total = Analytics.objects.aggregate(total=Coalesce(Sum("viewer_count"), 0))["total"]
         return Response({"count": total})
-
-
-@require_safe
-def spa_index(request, path=""):
-    """Catch-all for non-/api/ routes: return the React app's index.html so a refresh
-    or deep link on any client-side path still loads it. Paths that look like files
-    (have an extension) that WhiteNoise didn't already serve are real 404s, not the app."""
-    if "." in path.rsplit("/", 1)[-1]:
-        raise Http404
-    for base in (settings.STATIC_ROOT, settings.FRONTEND_DIST):
-        index = base / "index.html"
-        if index.is_file():
-            return HttpResponse(index.read_bytes(), content_type="text/html; charset=utf-8")
-    raise Http404("Frontend not built. Run `npm run build` in frontend/.")

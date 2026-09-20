@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
 
-// The API is same-origin: in production Django serves both the React app and /api/,
-// and in local dev the Vite dev server proxies /api to Django (see vite.config.js).
-const API_BASE = '/api'
+// Absolute base URL of the Django API, baked in at build time (Vite env vars are not
+// read at runtime). Include /api and no trailing slash, e.g. https://portfolio-api.onrender.com/api
+const BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
 
-const url = (path) => `${API_BASE}${path}`
+function url(path) {
+  if (!BASE) throw new Error('VITE_API_URL is not set. Copy .env.example to .env.')
+  return `${BASE}${path}`
+}
 
 export async function apiGet(path, signal) {
   const res = await fetch(url(path), { signal, headers: { Accept: 'application/json' } })
