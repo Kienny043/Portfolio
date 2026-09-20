@@ -50,7 +50,7 @@ The frontend is otherwise fully static content; the only reason a backend exists
 
 **One Web Service** serves everything: the React app at `/` and the API at `/api/`. Nothing is committed with real values — set env vars in the service's Environment tab.
 
-- `render.yaml` at the repo root is a Blueprint defining this service (commands, health check, env var names; secret values are `sync: false`, entered in the dashboard). The details below are the same settings, for reference or manual setup.
+- `render.yaml` at the repo root is a Blueprint defining this service (commands, health check, env var names; `DATABASE_URL` and `DJANGO_ALLOWED_HOSTS` are `sync: false`, entered in the dashboard; `DJANGO_SECRET_KEY` is `generateValue: true`, created by Render). The details below are the same settings, for reference or manual setup.
 - Root Directory: **repo root** (leave blank — the build touches both `frontend/` and `backend/`)
 - Runtime: Python. Versions are pinned by `.python-version` (3.13) and `.node-version` (22) at the repo root.
 - Build command:
