@@ -1,0 +1,4 @@
+# Docker and YAML files must keep LF endings (a CRLF would break the Dockerfile CMD).
+Dockerfile text eol=lf
+.dockerignore text eol=lf
+*.yaml text eol=lf

@@ -1,0 +1,25 @@
+# Render Blueprint: one Docker-based Web Service that serves both the Django API (/api/)
+# and the built React app from a single origin. See the Dockerfile and "Deployment" in CLAUDE.md.
+services:
+  - type: web
+    name: portfolio
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    region: singapore
+    healthCheckPath: /api/health/
+    envVars:
+      # sync: false = Render prompts for the value in the dashboard; it is never stored in the repo.
+      - key: DATABASE_URL # Aiven Service URI, ending ?sslmode=require
+        sync: false
+      - key: DJANGO_ALLOWED_HOSTS # this service's host, no scheme, e.g. portfolio.onrender.com
+        sync: false
+      # Render creates a random value itself (kept across deploys).
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      # Not secrets, so the defaults live here.
+      - key: DJANGO_DEBUG
+        value: "false"
+      - key: DB_CONN_MAX_AGE
+        value: "0"

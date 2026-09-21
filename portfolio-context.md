@@ -74,21 +74,19 @@ Full-stack personal portfolio: **React + Vite** frontend, **Django REST Framewor
   - `GET /api/analytics/count/` — optional, for a visible visitor counter
 - **Config:**
   - DB connection via `DATABASE_URL` env var (Aiven connection string, `sslmode=require`) — never hardcode credentials
-  - `django-cors-headers` enabled; allowed origins come from `CORS_ALLOWED_ORIGINS` (the deployed frontend's origin)
+  - `django-cors-headers` only when `DJANGO_DEBUG=true` (local dev); production is same-origin
   - All read endpoints are read-only (`ReadOnlyModelViewSet` or plain `APIView` + GET)
 
 ## 5. Frontend ↔ Backend Integration
 
-- Frontend fetches from `VITE_API_URL` (env var, absolute URL incl. `/api`) instead of hardcoded content for About/Skills/Projects/Testimonials/Blog
+- Frontend fetches from relative `/api/...` paths (same origin; Vite proxies to Django in dev) instead of hardcoded content for About/Skills/Projects/Testimonials/Blog
 - Each section handles a loading state and an empty state (zero rows) gracefully — no broken layout
 - Contact form: POST to `/api/contact/`, show inline success/error message, disable submit while pending
 - Optional: fire the analytics POST once per page load
 
 ## 6. Deployment
 
-- **Frontend:** Render Static Site (Root Directory `frontend`, build `npm install && npm run build`, publish `dist`), with `VITE_API_URL` set to the backend's URL
-- **Backend:** Render Web Service (Root Directory `backend`, same platform as the other PDRRMO projects), with `DATABASE_URL` etc. set as env vars in Render's dashboard, not in code
-- Exact commands and env var lists are in `CLAUDE.md` → Deployment.
+- **One Docker-based Render Web Service** (Django serves both the built React app and `/api/`; same origin, no CORS), built from the root `Dockerfile` and defined in `render.yaml`. `DATABASE_URL` etc. are set in Render's dashboard, not in code. Never run `migrate` against the Aiven DB. Details and env vars are in `CLAUDE.md` → Deployment.
 
 ## 7. Still Needed From Kienny
 
