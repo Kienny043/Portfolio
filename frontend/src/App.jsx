@@ -3,6 +3,7 @@ import { apiPost, useApi } from './lib/api'
 import About from './components/About'
 import Blog from './components/Blog'
 import Contact from './components/Contact'
+import Experience from './components/Experience'
 import Footer from './components/Footer'
 import Hero from './components/Hero'
 import Nav from './components/Nav'
@@ -26,6 +27,7 @@ export default function App() {
   const profile = useApi('/profile/')
   const education = useApi('/education/')
   const skills = useApi('/skills/')
+  const experience = useApi('/experience/')
   const projects = useApi('/projects/')
   const testimonials = useApi('/testimonials/')
   const blog = useApi('/blog/')
@@ -33,6 +35,7 @@ export default function App() {
 
   // Sections that render nothing when empty are dropped from the numbering and the nav.
   const showSkills = skills.status !== 'success' || skills.data.length > 0
+  const showExperience = experience.status !== 'success' || experience.data.length > 0
   const showProjects = projects.status !== 'success' || projects.data.length > 0
   const showTestimonials = rows(testimonials).length > 0
   const showBlog = rows(blog).length > 0
@@ -40,6 +43,7 @@ export default function App() {
   const sections = [
     { id: 'about', label: 'About', show: true },
     { id: 'skills', label: 'Skills', show: showSkills },
+    { id: 'experience', label: 'Experience', show: showExperience },
     { id: 'projects', label: 'Projects', show: showProjects },
     { id: 'testimonials', label: 'Testimonials', show: showTestimonials },
     { id: 'blog', label: 'Blog', show: showBlog },
@@ -57,6 +61,7 @@ export default function App() {
         <Hero />
         <About number={num('about')} profile={profile} education={education} />
         <Skills number={num('skills')} skills={skills} />
+        <Experience number={num('experience')} experience={experience} />
         <Projects number={num('projects')} projects={projects} />
         {showTestimonials && <Testimonials number={num('testimonials')} items={testimonials.data} />}
         {showBlog && <Blog number={num('blog')} posts={blog.data} />}
