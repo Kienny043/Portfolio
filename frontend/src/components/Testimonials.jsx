@@ -1,5 +1,5 @@
 import { formatDate } from '../lib/format'
-import { Reveal, Section, StarIcon } from './ui'
+import { LoadError, Reveal, Section, Skeleton, StarIcon } from './ui'
 
 function Stars({ rating }) {
   if (!rating) return null
@@ -12,29 +12,45 @@ function Stars({ rating }) {
   )
 }
 
-// Renders nothing until there is at least one testimonial (App only mounts it then).
-export default function Testimonials({ number, items }) {
+// Renders nothing once we know there are zero testimonials. While loading or on
+// error, App still mounts this (see showTestimonials in App.jsx) so a
+// skeleton/error can show instead of the section just popping in unannounced.
+export default function Testimonials({ number, testimonials }) {
+  if (testimonials.status === 'success' && testimonials.data.length === 0) return null
+
   return (
     <Section id="testimonials" number={number} title="Testimonials" tone="white">
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-        {items.map((t, i) => (
-          <Reveal key={t.testimonial_id} delay={i * 90} className="h-full">
-          <figure
-            className="flex h-full flex-col rounded-3xl border border-ink/10 bg-white p-6 transition hover:-translate-y-1 hover:shadow-lg"
-          >
-            <Stars rating={t.rating} />
-            <blockquote className="mt-4 flex-1 leading-relaxed text-ink/80">“{t.content}”</blockquote>
-            <figcaption className="mt-6">
-              <p className="font-semibold">{t.client_name}</p>
-              {t.client_company && <p className="text-sm text-ink/60">{t.client_company}</p>}
-              {t.date_received && (
-                <p className="mt-1 text-xs text-ink/50">{formatDate(t.date_received)}</p>
-              )}
-            </figcaption>
-          </figure>
-          </Reveal>
-        ))}
-      </div>
+      {testimonials.status === 'loading' && (
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {[0, 1, 2].map((i) => (
+            <Skeleton key={i} className="h-48" />
+          ))}
+        </div>
+      )}
+      {testimonials.status === 'error' && <LoadError what="testimonials" />}
+      {testimonials.status === 'success' && (
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {testimonials.data.map((t, i) => (
+            <Reveal key={t.testimonial_id} delay={i * 90} className="h-full">
+              <figure className="flex h-full flex-col rounded-3xl border border-ink/10 bg-white p-6 transition hover:-translate-y-1 hover:shadow-lg">
+                <Stars rating={t.rating} />
+                <blockquote className="mt-4 flex-1 break-words leading-relaxed text-ink/80">
+                  “{t.content}”
+                </blockquote>
+                <figcaption className="mt-6">
+                  <p className="break-words font-semibold">{t.client_name}</p>
+                  {t.client_company && (
+                    <p className="break-words text-sm text-ink/60">{t.client_company}</p>
+                  )}
+                  {t.date_received && (
+                    <p className="mt-1 text-xs text-ink/50">{formatDate(t.date_received)}</p>
+                  )}
+                </figcaption>
+              </figure>
+            </Reveal>
+          ))}
+        </div>
+      )}
     </Section>
   )
 }

@@ -8,7 +8,7 @@ function SkillChip({ skill }) {
     .filter(Boolean)
     .join(' · ')
   return (
-    <li className="rounded-full border border-ink/10 bg-white px-4 py-2 text-sm font-medium transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-md">
+    <li className="max-w-full break-words rounded-full border border-ink/10 bg-white px-4 py-2 text-sm font-medium transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-md">
       {skill.category}
       {meta && <span className="ml-2 text-xs font-normal text-ink/55">{meta}</span>}
     </li>

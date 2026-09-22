@@ -26,7 +26,11 @@ export function Reveal({ children, delay = 0, className = '' }) {
     <div
       ref={ref}
       style={{ '--delay': `${delay}ms` }}
-      className={`reveal ${shown ? 'is-visible' : ''} ${className}`}
+      // min-w-0: without it, a Reveal used as a grid/flex item (card grids) falls
+      // back to CSS's "automatic minimum size" — its content's min-content width —
+      // which an unbroken long word can blow past the track width, overflowing the
+      // page even though the text itself has `break-words`. Harmless elsewhere.
+      className={`reveal min-w-0 ${shown ? 'is-visible' : ''} ${className}`}
     >
       {children}
     </div>
@@ -55,7 +59,7 @@ export function Pill({ children, tone = 'accent' }) {
   const styles =
     tone === 'accent2' ? 'bg-accent2/10 text-accent2' : 'bg-accent/10 text-accent'
   return (
-    <span className={`inline-block rounded-full px-3 py-1 text-sm font-medium ${styles}`}>
+    <span className={`inline-block max-w-full break-words rounded-full px-3 py-1 text-sm font-medium ${styles}`}>
       {children}
     </span>
   )

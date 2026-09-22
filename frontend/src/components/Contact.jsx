@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { apiPost } from '../lib/api'
 import { Reveal, Section } from './ui'
 
@@ -23,11 +23,19 @@ export default function Contact({ number }) {
   const [status, setStatus] = useState('idle')
   const [fieldErrors, setFieldErrors] = useState({})
   const [errorMessage, setErrorMessage] = useState('')
+  // A ref, not state: two clicks fired in the same tick (e.g. a fast double-click)
+  // both run onSubmit from the same stale closure before React can re-render and
+  // disable the button, so a `status === 'pending'` check reads 'idle' for both.
+  // The ref is a plain mutable value with no render involved, so it's already
+  // true for the second call the instant the first one sets it.
+  const submittingRef = useRef(false)
 
   const update = (name) => (e) => setForm((f) => ({ ...f, [name]: e.target.value }))
 
   async function onSubmit(e) {
     e.preventDefault()
+    if (submittingRef.current) return
+    submittingRef.current = true
     setStatus('pending')
     setFieldErrors({})
     setErrorMessage('')
@@ -56,6 +64,8 @@ export default function Contact({ number }) {
     } catch {
       setErrorMessage('Couldn’t reach the server. Check your connection and try again.')
       setStatus('error')
+    } finally {
+      submittingRef.current = false
     }
   }
 

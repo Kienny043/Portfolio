@@ -9,3 +9,6 @@ __pycache__/
 node_modules/
 dist/
 backend/staticfiles/
+
+# One-off proof/deliverable screenshots (e.g. for assignments) — not site source
+/screenshots/

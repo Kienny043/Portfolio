@@ -44,8 +44,8 @@ function ProjectCard({ project }) {
             Featured
           </p>
         )}
-        <h3 className="text-2xl font-semibold leading-snug">{project.title}</h3>
-        <p className="mt-3 flex-1 leading-relaxed text-ink/75">{project.description}</p>
+        <h3 className="break-words text-2xl font-semibold leading-snug">{project.title}</h3>
+        <p className="mt-3 flex-1 break-words leading-relaxed text-ink/75">{project.description}</p>
 
         {project.tags.length > 0 && (
           <ul className="mt-5 flex flex-wrap gap-2">

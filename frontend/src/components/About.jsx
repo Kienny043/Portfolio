@@ -36,7 +36,7 @@ export default function About({ number, profile, education }) {
       {p && (
         <div className="grid gap-8 md:grid-cols-[1.5fr_1fr] md:gap-10">
           <Reveal>
-            <p className="text-lg leading-relaxed text-ink/80">{p.bio}</p>
+            <p className="break-words text-lg leading-relaxed text-ink/80">{p.bio}</p>
           </Reveal>
           {edu.length > 0 && (
             <Reveal delay={120} className="space-y-4">

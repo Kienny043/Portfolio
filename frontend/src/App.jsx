@@ -37,8 +37,8 @@ export default function App() {
   const showSkills = skills.status !== 'success' || skills.data.length > 0
   const showExperience = experience.status !== 'success' || experience.data.length > 0
   const showProjects = projects.status !== 'success' || projects.data.length > 0
-  const showTestimonials = rows(testimonials).length > 0
-  const showBlog = rows(blog).length > 0
+  const showTestimonials = testimonials.status !== 'success' || testimonials.data.length > 0
+  const showBlog = blog.status !== 'success' || blog.data.length > 0
 
   const sections = [
     { id: 'about', label: 'About', show: true },
@@ -63,8 +63,10 @@ export default function App() {
         <Skills number={num('skills')} skills={skills} />
         <Experience number={num('experience')} experience={experience} />
         <Projects number={num('projects')} projects={projects} />
-        {showTestimonials && <Testimonials number={num('testimonials')} items={testimonials.data} />}
-        {showBlog && <Blog number={num('blog')} posts={blog.data} />}
+        {showTestimonials && (
+          <Testimonials number={num('testimonials')} testimonials={testimonials} />
+        )}
+        {showBlog && <Blog number={num('blog')} blog={blog} />}
         <Contact number={num('contact')} />
       </main>
       <Footer name={name} />
